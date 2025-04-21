@@ -38,7 +38,7 @@ function schalten(temperatur_innen) {
 }
 
 
-function kvsGet(key1) {
+function kvsGet(key1, key2) {  /// abholen der Temperatur und des Tastendrucks.
     Shelly.call(
         "KVS.get",
         { "key": key1 },
@@ -46,16 +46,25 @@ function kvsGet(key1) {
         temp_innen = result.value;
         }
     );
+
+    Shelly.call(
+        "KVS.get",
+        { "key": key2 },
+        function (result) {
+        startzeit = result.value;
+        }
+    );
         
-}
+} 
 
 //kvsGet("temperatur_innen");
   let temp_innen;
+  let startzeit;
   
 Timer.set(6000, true, function(ud) { //Start Timerschleife alle 6000 Millisekunden
-  kvsGet("temperatur_innen");
+  kvsGet("temperatur_innen", "zeit_letzter_tastendruck");
   print(temp_innen);
-  schalten(temp_innen);
+  schalten(temp_innen, startzeit);
      
  } // Ende Timerschleife
  , null);
