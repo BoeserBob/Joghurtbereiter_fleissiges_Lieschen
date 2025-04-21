@@ -33,8 +33,9 @@ if (index !== -1) {
   } 
   else { 
     print("Suchbegriff nicht gefunden, fremden event abgefangen");
-        if (event.component === "switch:0" && event.info.event === "toggle") {  ///////////////////////////////// Tastendruck reingebastelt -> fies
+        if (event.component === "switch:0" && event.info.event === "button") {  ///////////////////////////////// Tastendruck reingebastelt -> fies
         let currentTime = event.now; // Zeit wegspeichern
+        print ("Startzeit wegspeichern xxxxxxxxxxxxx" + currentTime );
         Shelly.call("KVS.Set", {
       "key": "zeit_letzter_tastendruck", "value": currentTime}
       );
@@ -50,10 +51,15 @@ if (index !== -1) {
  // ist es der innere sensor?
   if (event.info.data.address==sensor_innen) {
       print("sensor innen erkannt ----------------------------------------------");
-      let temperatur_innen = (event.info.data.temperature);
+      let temperatur_innen = (event.info.data.temperature); /// Temperatur wegspeichern
       print(event.info.data.temperature);
       Shelly.call("KVS.Set", {
-      "key": "temperatur_innen", "value": temperatur_innen}
+      "key": "temperatur_innen", "value": temperatur_innen});
+      
+      let unixtime = (event.now);                  /// Unixtime wegspeichern für Laufzeit
+      print(event.now);
+      Shelly.call("KVS.Set", {
+      "key": "unixtime", "value": unixtime}
       );
   } // // ende if innen
 
