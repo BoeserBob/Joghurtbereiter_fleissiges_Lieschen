@@ -66,8 +66,7 @@ print(event.info.data.address);
       });
       Shelly.call("KVS.Set", {
       "key": "unixtime", "value": unixtime});     
-  }
-  
+   
 } // Ende Funktion check blu
 
 
