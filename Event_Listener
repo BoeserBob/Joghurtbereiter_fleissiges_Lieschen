@@ -17,6 +17,7 @@ var sensor_innen="0c:ef:f6:f2:40:d4";
 // 
 
 var temperatur_innen;
+let unixtime;
 
 /// Start der Funktion, um die events auszuwerten: 
 function checkBlu(event) { 
@@ -47,6 +48,7 @@ print(event.info.data.address);
       print(event.info.data.temperature);
       Shelly.call("KVS.Set", {
       "key": "temperatur_innen", "value": temperatur_innen});
+        
  } // // ende if innen
 
 // ist es ein Tastendruck?
@@ -56,8 +58,15 @@ print(event.info.data.address);
       print(event.info.ts);
       Shelly.call("KVS.Set", {
       "key": "zeit_letzter_tastendruck", "value": startzeit});
- } // // ende if innen
+ } // // ende if Taste
 
+      Shelly.call("Shelly.GetStatus", {}, function (result) {  // Unixzwit wegschreiben ------------------
+      unixtime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
+      print("unixtime wegschreiben" + unixtime)
+      });
+      Shelly.call("KVS.Set", {
+      "key": "unixtime", "value": unixtime});     
+  }
   
 } // Ende Funktion check blu
 
