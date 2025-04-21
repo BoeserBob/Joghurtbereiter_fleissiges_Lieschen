@@ -17,9 +17,18 @@ function schalten(temperatur_innen) {
 /////////////// Schaltparameter ///////////////
  let mindesttemperatur = 40; // in °C = unterhalb dieser Temperatur geheizt 
  let maxtemperatur = 42; // in °C = oberhalb dieser Schwelle wird nicht mehr geheizt
+ let laufzeit = 36000 // Zeit in Sekunden
 //////////// Schaltparameter /////////////////
 
-   if (temperatur_innen > maxtemperatur) {
+Shelly.call("Shelly.GetStatus", {}, function (result) {
+    let unixTime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
+    print("Unix-Zeit: " + unixTime);
+});
+
+
+if (unixTime < unixtime + laufzeit) { // Laufzeitüberwachung
+
+   if (temperatur_innen > maxtemperatur) { // Anfang Termperaturüberwachung
       print("ausschalten weil zu warm");
       Shelly.call("Switch.Set", {id:0, on:false});
 
@@ -33,9 +42,10 @@ function schalten(temperatur_innen) {
       Shelly.call("Switch.Set", {id:0, on:false});;
       }
 
-    }
+    } // Ende Temperaturüberwachung
+} // Ende Laufzeitüberwachung
 
-}
+} /// Ende Funktion schalten
 
 
 function kvsGet(key1, key2) {  /// abholen der Temperatur und des Tastendrucks.
