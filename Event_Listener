@@ -1,4 +1,4 @@
-////////////// Lieschen ///// Script taupi_event_handler_checkBlu ////////////////////
+/////////////// Lieschen ///// Script taupi_event_handler_checkBlu ////////////////////
 // Diese Software und die zugehörigen Skripte unterliegen der Boost Software License - Version 1.0 - August 17th, 2003
 // copyright by boeserbob
 // Fragen an quirb@web.de
@@ -23,6 +23,14 @@ let unixtime;
 function checkBlu(event) { 
   print("check blu aufgerufen");
   print("Empfangener String: " + JSON.stringify(event));
+
+      Shelly.call("Shelly.GetStatus", {}, function (result) {  // Unixzwit wegschreiben ------------------
+      unixtime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
+      print("unixtime wegschreiben" + unixtime)
+      });
+      Shelly.call("KVS.Set", {
+      "key": "unixtime", "value": unixtime});     
+   
 
 // Abfangen fremde events
 let eventinhalt = (JSON.stringify(event)); 
@@ -60,13 +68,7 @@ print(event.info.data.address);
       "key": "zeit_letzter_tastendruck", "value": startzeit});
  } // // ende if Taste
 
-      Shelly.call("Shelly.GetStatus", {}, function (result) {  // Unixzwit wegschreiben ------------------
-      unixtime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
-      print("unixtime wegschreiben" + unixtime)
-      });
-      Shelly.call("KVS.Set", {
-      "key": "unixtime", "value": unixtime});     
-   
+
 } // Ende Funktion check blu
 
 
