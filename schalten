@@ -1,14 +1,14 @@
-////////////// TAUPI 4.0 @ Shelly ///// Script Lüfter schalten /////////////////////////////
+///////////// TAUPI 4.0 @ Shelly ///// Script Lüfter schalten /////////////////////////////
 // copyright by boeserbob
 // Fragen an quirb@web.de
 // Dokumentation und aktuelle Versionen unter https://github.com/BoeserBob/Taupi-4.0
 // Lizenz und erforderliche Firmware siehe in den Kommentaren des Scripts "taupi_event_handler_checkBlu"
 //
-// Dieser Script schaltet das Heizelement (über den Schalter des Shellys auf dem er installiert ist. 
+// Dieser Script schaltet das Heizelement (über den Schalter des Shellys auf dem er installiert ist). 
 //   er startet eine Timerschleife
 //     die Timerschleife holt sich die erforderlichen Werte über Funktion aus dem KVS
 // 
-// Die Schaltparameter (Mindesttemperaturen, Taupunktschwelle, ...) können in der Funktion "schalten" angepasst werden. 
+// Die Schaltparameter (Mindesttemperaturen, Maximaltemperaturen, ...) können in der Funktion "schalten" angepasst werden. 
 //
 
 function schalten(temperatur_innen) {
@@ -43,7 +43,7 @@ function kvsGet(key1) {
         "KVS.get",
         { "key": key1 },
         function (result) {
-        temperatur_innen = result.value;
+        temp_innen = result.value;
         }
     );
         
