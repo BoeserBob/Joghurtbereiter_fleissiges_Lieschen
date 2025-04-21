@@ -11,23 +11,24 @@
 // Die Schaltparameter (Mindesttemperaturen, Maximaltemperaturen, ...) können in der Funktion "schalten" angepasst werden. 
 //
 
-function schalten(temperatur_innen) {
+function schalten(temperatur_innen, startzeit, unixtime) {
  print("schalten_aufgerufen ");
 
 /////////////// Schaltparameter ///////////////
  let mindesttemperatur = 40; // in °C = unterhalb dieser Temperatur geheizt 
  let maxtemperatur = 42; // in °C = oberhalb dieser Schwelle wird nicht mehr geheizt
- let laufzeit = 36000 // Zeit in Sekunden
+ let laufzeit = 36000; // Zeit in Sekunden
 //////////// Schaltparameter /////////////////
 
-Shelly.call("Shelly.GetStatus", {}, function (result) {
-    let unixTime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
-    print("Unix-Zeit: " + unixTime);
-});
+print("Unix-Zeit: " + unixtime);
+print("Startzeit: " + startzeit);
+print("Laufzeit " + laufzeit);
+restzeit = (startzeit + laufzeit - unixtime);
+print("Restzeit: " + restzeit );
 
-
-if (unixTime < unixtime + laufzeit) { // Laufzeitüberwachung
-
+if ( restzeit > 0 ) { // Laufzeitüberwachung
+   print ("Laufzeitende noch nicht erreicht");
+   
    if (temperatur_innen > maxtemperatur) { // Anfang Termperaturüberwachung
       print("ausschalten weil zu warm");
       Shelly.call("Switch.Set", {id:0, on:false});
@@ -43,12 +44,16 @@ if (unixTime < unixtime + laufzeit) { // Laufzeitüberwachung
       }
 
     } // Ende Temperaturüberwachung
+      } else {
+        print("Zeit ist abgelaufen");
+      Shelly.call("Switch.Set", {id:0, on:false});;
+
 } // Ende Laufzeitüberwachung
 
 } /// Ende Funktion schalten
 
 
-function kvsGet(key1, key2) {  /// abholen der Temperatur und des Tastendrucks.
+function kvsGet(key1, key2, key3) {  /// abholen der Temperatur und des Tastendrucks.
     Shelly.call(
         "KVS.get",
         { "key": key1 },
@@ -64,17 +69,31 @@ function kvsGet(key1, key2) {  /// abholen der Temperatur und des Tastendrucks.
         startzeit = result.value;
         }
     );
+    
+    Shelly.call(
+        "KVS.get",
+        { "key": key3 },
+        function (result) {
+        unixtime = result.value;
+        }
+    );
         
 } 
 
 //kvsGet("temperatur_innen");
   let temp_innen;
   let startzeit;
-  
+  let unixtime;
+  let restzeit;
+ 
+
 Timer.set(6000, true, function(ud) { //Start Timerschleife alle 6000 Millisekunden
-  kvsGet("temperatur_innen", "zeit_letzter_tastendruck");
+   Shelly.call("Shelly.GetStatus", {}, function (result) {
+      let unixtime = result.sys.unixtime; // Unix-Zeit in Sekunden seit 1. Januar 1970
+    });
+  kvsGet("temperatur_innen", "zeit_letzter_tastendruck", "unixtime");
   print(temp_innen);
-  schalten(temp_innen, startzeit);
+  schalten(temp_innen, startzeit, unixtime);
      
  } // Ende Timerschleife
  , null);
