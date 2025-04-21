@@ -22,25 +22,18 @@ var temperatur_innen;
 /// Start der Funktion, um die events auszuwerten: 
 function checkBlu(event) { 
   print("check blu aufgerufen");
-  print(JSON.stringify(event));
+  print("Empfangener String: " + JSON.stringify(event));
 
 // Abfangen fremde events
 let eventinhalt = (JSON.stringify(event)); 
 let suchbegriff = "shelly-blu"; 
 let index = eventinhalt.indexOf(suchbegriff); 
+
 if (index !== -1) { 
   print("Suchbegriff gefunden an Position: " + index); 
   } 
   else { 
     print("Suchbegriff nicht gefunden, fremden event abgefangen");
-        if (event.component === "switch:0" && event.info.event === "button") {  ///////////////////////////////// Tastendruck reingebastelt -> fies das funktioniert so nicht !!!
-        let currentTime = event.now; // Zeit wegspeichern
-        print ("Startzeit wegspeichern xxxxxxxxxxxxx" + currentTime );
-        Shelly.call("KVS.Set", {
-      "key": "zeit_letzter_tastendruck", "value": currentTime}
-      );
-        print("Zeit gespeichert: " + currentTime);
-        }
     return;
     }
 
@@ -48,21 +41,15 @@ if (index !== -1) {
   
  print(event.info.data.address);
    
- // ist es der innere sensor?
+// ist es der innere sensor?
   if (event.info.data.address==sensor_innen) {
       print("sensor innen erkannt ----------------------------------------------");
       let temperatur_innen = (event.info.data.temperature); /// Temperatur wegspeichern
       print(event.info.data.temperature);
       Shelly.call("KVS.Set", {
       "key": "temperatur_innen", "value": temperatur_innen});
-      
-      let unixtime = (event.now);                  /// Unixtime wegspeichern für Laufzeit
-      print(event.now);
-      Shelly.call("KVS.Set", {
-      "key": "unixtime", "value": unixtime}
-      );
-  } // // ende if innen
-
+ } // // ende if innen
+  
 } // Ende Funktion check blu
 
 
