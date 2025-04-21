@@ -33,6 +33,13 @@ if (index !== -1) {
   } 
   else { 
     print("Suchbegriff nicht gefunden, fremden event abgefangen");
+        if (event.component === "switch:0") {  ///////////////////////////////// Tastendruck reingebastelt -> fies
+        let currentTime = event.now; // Zeit wegspeichern
+        Shelly.call("KVS.Set", {
+      "key": "zeit_letzter_tastendruck", "value": currentTime}
+      );
+        print("Zeit gespeichert: " + currentTime);
+        }
     return;
     }
 
@@ -51,5 +58,6 @@ if (index !== -1) {
   } // // ende if innen
 
 } // Ende Funktion check blu
+
 
 Shelly.addEventHandler(checkBlu); // registriert checkEvent als EventHandler
