@@ -1,0 +1,4 @@
+Die Scripte regeln eine Temperatur in einem Raumvolumen 
+in dem Fall ein Joghurtbereiter
+In den KVS muss eine Variable "temperatur_innen" angelegt werden.
+Im Script "schalten" kann das Regelfenster eingestellt werden (max- und mintemperatur).
