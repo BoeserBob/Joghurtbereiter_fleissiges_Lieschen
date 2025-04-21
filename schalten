@@ -1,4 +1,4 @@
-  ////////////// TAUPI 4.0 @ Shelly ///// Script Lüfter schalten /////////////////////////////
+////////////// TAUPI 4.0 @ Shelly ///// Script Lüfter schalten /////////////////////////////
 // copyright by boeserbob
 // Fragen an quirb@web.de
 // Dokumentation und aktuelle Versionen unter https://github.com/BoeserBob/Taupi-4.0
@@ -25,7 +25,7 @@ function schalten(temperatur_innen) {
 
       }
     else {
-        if (taupunkt_innen < mindesttemperatur) {
+        if (temperatur_innen < mindesttemperatur) {
           print("Heizung einschalten ");
           Shelly.call("Switch.Set", {id:0, on:true}); 
         } else {
@@ -52,7 +52,7 @@ function kvsGet(key1) {
 //kvsGet("temperatur_innen");
   let temp_innen;
   
-Timer.set(300000, true, function(ud) { //Start Timerschleife alle 300.000 Millisekunden
+Timer.set(6000, true, function(ud) { //Start Timerschleife alle 6000 Millisekunden
   kvsGet("temperatur_innen");
   print(temp_innen);
   schalten(temp_innen);
