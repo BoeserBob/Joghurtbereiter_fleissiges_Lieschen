@@ -1,0 +1,61 @@
+  ////////////// TAUPI 4.0 @ Shelly ///// Script Lüfter schalten /////////////////////////////
+// copyright by boeserbob
+// Fragen an quirb@web.de
+// Dokumentation und aktuelle Versionen unter https://github.com/BoeserBob/Taupi-4.0
+// Lizenz und erforderliche Firmware siehe in den Kommentaren des Scripts "taupi_event_handler_checkBlu"
+//
+// Dieser Script schaltet das Heizelement (über den Schalter des Shellys auf dem er installiert ist. 
+//   er startet eine Timerschleife
+//     die Timerschleife holt sich die erforderlichen Werte über Funktion aus dem KVS
+// 
+// Die Schaltparameter (Mindesttemperaturen, Taupunktschwelle, ...) können in der Funktion "schalten" angepasst werden. 
+//
+
+function schalten(temperatur_innen) {
+ print("schalten_aufgerufen ");
+
+/////////////// Schaltparameter ///////////////
+ let mindesttemperatur = 40; // in °C = unterhalb dieser Temperatur geheizt 
+ let maxtemperatur = 42; // in °C = oberhalb dieser Schwelle wird nicht mehr geheizt
+//////////// Schaltparameter /////////////////
+
+   if (temperatur_innen > maxtemperatur) {
+      print("ausschalten weil zu warm");
+      Shelly.call("Switch.Set", {id:0, on:false});
+
+      }
+    else {
+        if (taupunkt_innen < mindesttemperatur) {
+          print("Heizung einschalten ");
+          Shelly.call("Switch.Set", {id:0, on:true}); 
+        } else {
+        print("Heizung aus da noch warm genug");
+      Shelly.call("Switch.Set", {id:0, on:false});;
+      }
+
+    }
+
+}
+
+
+function kvsGet(key1) {
+    Shelly.call(
+        "KVS.get",
+        { "key": key1 },
+        function (result) {
+        temperatur_innen = result.value;
+        }
+    );
+        
+}
+
+//kvsGet("temperatur_innen");
+  let temp_innen;
+  
+Timer.set(300000, true, function(ud) { //Start Timerschleife alle 300.000 Millisekunden
+  kvsGet("temperatur_innen");
+  print(temp_innen);
+  schalten(temp_innen);
+     
+ } // Ende Timerschleife
+ , null);
