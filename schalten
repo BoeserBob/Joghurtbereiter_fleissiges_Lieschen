@@ -15,21 +15,13 @@ function schalten(temperatur_innen, startzeit, unixtime) {
  print("schalten_aufgerufen ");
 
 /////////////// Schaltparameter ///////////////
- let mindesttemperatur = 40; // in °C = unterhalb dieser Temperatur geheizt 
- let maxtemperatur = 42; // in °C = oberhalb dieser Schwelle wird nicht mehr geheizt
- let laufzeit = 36000; // Zeit in Sekunden
+ let mindesttemperatur = 30; // in °C = unterhalb dieser Temperatur geheizt 
+ let maxtemperatur = 40; // in °C = oberhalb dieser Schwelle wird nicht mehr geheizt
+ let laufzeit = 60; // Zeit in Sekunden
 //////////// Schaltparameter /////////////////
 
-print("Unix-Zeit: " + unixtime);
-print("Startzeit: " + startzeit);
-print("Laufzeit " + laufzeit);
-restzeit = (startzeit + laufzeit - unixtime);
-print("Restzeit: " + restzeit );
-
-if ( restzeit > 0 ) { // Laufzeitüberwachung
-   print ("Laufzeitende noch nicht erreicht");
    
-   if (temperatur_innen > maxtemperatur) { // Anfang Termperaturüberwachung
+    if (temperatur_innen > maxtemperatur) { // Anfang Termperaturüberwachung
       print("ausschalten weil zu warm");
       Shelly.call("Switch.Set", {id:0, on:false});
 
@@ -44,12 +36,7 @@ if ( restzeit > 0 ) { // Laufzeitüberwachung
       }
 
     } // Ende Temperaturüberwachung
-      } else {
-        print("Zeit ist abgelaufen");
-      Shelly.call("Switch.Set", {id:0, on:false});;
-
-} // Ende Laufzeitüberwachung
-
+ 
 } /// Ende Funktion schalten
 
 
