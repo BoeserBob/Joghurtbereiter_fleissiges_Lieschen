@@ -1,3 +1,6 @@
+
+EXPERIMENTELL -> LÄUFT NOCH NICHT WIRKLICH :-)
+
 Die Scripte regeln eine Temperatur in einem Raumvolumen 
 
 in dem Fall ein Joghurtbereiter
