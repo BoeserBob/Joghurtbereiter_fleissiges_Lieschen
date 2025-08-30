@@ -41,8 +41,6 @@ function schalten() {
     return;
   }
 
-anzahl_schaltzyklen = (anzahl_schaltzyklen - 1); // Zähler für die Zykluszeitbeschraenkung 
-
   // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
   if (anzahl_schaltzyklen < 0 )
   {
@@ -50,6 +48,8 @@ anzahl_schaltzyklen = (anzahl_schaltzyklen - 1); // Zähler für die Zykluszeitb
     Shelly.call("Switch.Set", { id: 0, on: false });
     return;
   }
+
+anzahl_schaltzyklen = (anzahl_schaltzyklen - 1); // Zähler für die Zykluszeitbeschraenkung 
 
     if (temperatur_innen < mindesttemperatur) {
     print("Temperierung einschalten");
