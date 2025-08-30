@@ -21,9 +21,9 @@
 //========== Sensor-Konfiguration ==========
 var sensor_innen  = "0c:ef:f6:f2:40:d4";
 //========== Schalt-Konfiguration ==========
-var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
-var schaltzeit         = 3;                 // [s]  Schaltbedingung prüfen alle X Sekunden
-var zykluslaenge       = 30;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
+var mindesttemperatur  = 41;                 // [°C] ...und Tinnen > mindesttemperatur...
+var schaltzeit         = 60;                 // [s]  Schaltbedingung prüfen alle X Sekunden
+var zykluslaenge       = 3600;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
 //===== Ende Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 //
 
