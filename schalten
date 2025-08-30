@@ -9,9 +9,10 @@
 //
 // Dieses Skript verwandelt eine Shelly Plug und einen Shelly H+T Blu in die STeuerung für einen Joghurtbereiter. 
 // Der Skript schaltet einen angeschlossenen Lüfter und eine Wärmequelle (z.B. eine Glühbirne) über den Schalter des Shellys auf dem er installiert ist entsprechend der Temperatur im Joghurtbereiter 
-//   - Es empfängt Messwert-Events von einem BLE-Sensor.
-//   - Entsprechend der Temperaturvorgabe wird die Wärmequelle eingeschaltet oder ausgeschaltet.
-//   - nach einer eingestellten Zeit wird die Wärmequelle nicht mehr eingeschaltet.
+//   - Der Zyklus startet automatisch, sobald der Shelly Plug mit Strom versorgt wird
+//   - Die Plug empfängt Messwert-Events von einem BLE-Sensor.
+//   - Entsprechend der Temperaturvorgabe wird die Wärmequelle ein- oder ausgeschaltet.
+//   - Nach einer vorher definierten Zykluslänge wird die Wärmequelle nicht mehr eingeschaltet.
 //    
 // Die MAC-Adresse für "sensor_innen" muss an den eigenen Sensor angepasst werden.
 // Die Schaltkonfiguration kann bei Bedarf angepasst werden.
