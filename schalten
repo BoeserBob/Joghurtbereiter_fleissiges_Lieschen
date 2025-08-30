@@ -36,7 +36,7 @@ function schalten() {
   }
 
   // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
-  if (anzahl schaltzyklen < 0 )
+  if (anzahl_schaltzyklen < 0 )
   {
     print("Zyklusende erreicht, Temperierung ausschalten");
     Shelly.call("Switch.Set", { id: 0, on: false });
