@@ -1,15 +1,18 @@
 ////////////// Joghurtbereiter_fleissiges_Lieschen @ Shelly //////////////
 // copyright by boeserbob 
-// Credits to HolzaChri für den vereinfachten Taupi-4.0 
+// Credits to HolzaChri für den vereinfachten Taupi-4.0 von dem der Bereiter abstammt :-)
 // Fragen an quirb@web.de
 // Dokumentation und aktuelle Versionen unter https://github.com/BoeserBob/Joghurtbereiter_fleissiges_Lieschen
+//
+// ACHTUNG - VERWENDE IN DEM JOGHURTBEREICHER IMMER ZUR SICHERHEIT ZUSÄTZLICH EINE THERMOSICHERUNG 
+// UM IM FALLE EINER FEHLFUNKTION EINE ÜBERHITZUING UND BRÄNDE ZU VERHINDERN. 
 //
 // Dieses Skript verwandelt eine Shelly Plug und einen Shelly H+T Blu in die STeuerung für einen Joghurtbereiter. 
 // Der Skript schaltet einen angeschlossenen Lüfter und eine Wärmequelle (z.B. eine Glühbirne) über den Schalter des Shellys auf dem er installiert ist entsprechend der Temperatur im Joghurtbereiter 
 //   - Es empfängt Messwert-Events von einem BLE-Sensor.
 //   - Entsprechend der Temperaturvorgabe wird die Wärmequelle eingeschaltet oder ausgeschaltet.
-//   - Eine Timerschleife überprüft regelmäßig, ob alle Einschaltbedingungen fuer den Lüfter erfüllt sind:
-// 
+//   - nach einer eingestellten Zeit wird die Wärmequelle nicht mehr eingeschaltet.
+//    
 // Die nachfolgenden Zeilen müssen angepasst werden, mindestens die MAC-Adressen für "sensor_aussen" und "sensor_innen".
 // Die Schaltkonfiguration kann bei Bedarf angepasst werden.
 //
