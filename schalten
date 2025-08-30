@@ -13,7 +13,7 @@
 //   - Entsprechend der Temperaturvorgabe wird die Wärmequelle eingeschaltet oder ausgeschaltet.
 //   - nach einer eingestellten Zeit wird die Wärmequelle nicht mehr eingeschaltet.
 //    
-// Die nachfolgenden Zeilen müssen angepasst werden, mindestens die MAC-Adressen für "sensor_aussen" und "sensor_innen".
+// Die MAC-Adresse für "sensor_innen" muss an den eigenen Sensor angepasst werden.
 // Die Schaltkonfiguration kann bei Bedarf angepasst werden.
 //
 
