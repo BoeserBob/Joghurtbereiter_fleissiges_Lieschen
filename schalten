@@ -28,6 +28,9 @@ let anzahl_schaltzyklen =(zykluslaenge * 3600 / schaltzeit);
 
 // Heizungssteuerung
 function schalten() {
+
+anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
+
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
   if (typeof temperatur_innen === "undefined")
   {
@@ -64,7 +67,7 @@ function checkBlu(event) {
 Timer.set(schaltzeit * 1000, true, function () {
   print("----- Steuerung alle", schaltzeit, "s -----");
   print("Innen: T =", temperatur_innen, "°C,");
-  print("verbleibende Schlatzyklen: ", anzahl_schaltzyklen );
+  print("verbleibende Schaltzyklen: ", anzahl_schaltzyklen );
   schalten();
 });
 
