@@ -33,7 +33,6 @@ let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
 // Heizungssteuerung
 function schalten() {
 
-anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
 
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
   if (typeof temperatur_innen === "undefined")
@@ -41,6 +40,8 @@ anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
     print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
     return;
   }
+
+anzahl_schaltzyklen = (anzahl_schaltzyklen - 1); // Zähler für die Zykluszeitbeschraenkung 
 
   // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
   if (anzahl_schaltzyklen < 0 )
