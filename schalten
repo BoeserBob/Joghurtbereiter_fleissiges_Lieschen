@@ -17,12 +17,14 @@
 //========== Sensor-Konfiguration ==========
 var sensor_innen  = "7c:c6:b6:57:99:45";
 //========== Schalt-Konfiguration ==========
-var mindesttemperatur  = 10;                 // [°C] ...und Tinnen > mindesttemperatur...
+var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
 var schaltzeit         = 60;                 // [s]  Schaltbedingung prüfen alle X Sekunden
+var zykluslänge        = 12;                 // [h] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 
 var temperatur_innen;
+let anzahl_schaltzyklen =(zykluslänge * 3600 / schaltzeit);
 
 // Heizungssteuerung
 function schalten() {
@@ -33,11 +35,19 @@ function schalten() {
     return;
   }
 
+  // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
+  if (anzahl schaltzyklen < 0 )
+  {
+    print("Zyklusende erreicht, Temperierung ausschalten");
+    Shelly.call("Switch.Set", { id: 0, on: false });
+    return;
+  }
+
     if (temperatur_innen < mindesttemperatur) {
-    print("Lüfter einschalten");
+    print("Temperierung einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
   } else {
-    print("Lüfter ausschalten.");
+    print("Temperierung ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
   }
 }
@@ -54,6 +64,7 @@ function checkBlu(event) {
 Timer.set(schaltzeit * 1000, true, function () {
   print("----- Steuerung alle", schaltzeit, "s -----");
   print("Innen: T =", temperatur_innen, "°C,");
+  print("verbleibende Schlatzyklen: ", anzahl_schaltzyklen );
   schalten();
 });
 
