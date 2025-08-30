@@ -15,7 +15,7 @@
 //
 
 //========== Sensor-Konfiguration ==========
-var sensor_innen  = "7c:c6:b6:57:99:45";
+var sensor_innen  = "0c:ef:f6:f2:40:d4";
 //========== Schalt-Konfiguration ==========
 var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
 var schaltzeit         = 60;                 // [s]  Schaltbedingung prüfen alle X Sekunden
