@@ -1,3 +1,2 @@
-- Laufzeitbegrenzung 10h nach Tastendruck hinzufügen
-- Kotz smiley: der Tastendruck erzeugt anschienend keinen Event sondern eine Notification bzw. einen Status Change... prima ... wie kann man das wieder auslesen ...
-"shelly_notification:165 Status change of switch:0: {"id":0,"output":true,"source":"button"}"
+
+
