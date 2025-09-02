@@ -23,9 +23,10 @@ var sensor_innen  = "0c:ef:f6:f2:40:d4";
 var mindesttemperatur  = 30;                 // [°C] ...und Tinnen > mindesttemperatur...
 var schaltzeit         = 6;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var zykluslaenge       = 30;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
+var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot 
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
-
+var battery_innen;
 var temperatur_innen;
 let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
 
@@ -36,32 +37,38 @@ function schalten() {
   if (typeof temperatur_innen === "undefined")
   {
     print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
-    farbring(100,60,0,100);
+    farbring(80,80,80,100);
     return;
   }
 
-anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
+  // Visualisierung Batteriefüllstand
+if (battery_innen < battery_warngrenze )
+  {
+    print("Batteriestand niedrig");
+    farbring(100,0,0,100);
+   }
+
+  anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
 
   // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
   if (anzahl_schaltzyklen < 0 )
   {
     print("Zyklusende erreicht, Temperierung ausschalten");
     Shelly.call("Switch.Set", { id: 0, on: false });
-    farbring(0,100,0,100);
+    farbring(0,80,0,100);
     return;
   }
 
     if (temperatur_innen < mindesttemperatur) {
     print("Temperierung einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
-    farbring(100,0,0,100);
+    farbring(80,10,0,100);
         
   } else {
     print("Temperierung ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
-    farbring(0,0,100,100); 
-  
-  
+    farbring(0,0,80,100); 
+   
   }
 }
 
@@ -84,6 +91,7 @@ function farbring(red,green,blue,helligkeit) {
 function checkBlu(event) {
   if (event.address === sensor_innen) {
     temperatur_innen = event.temperature;
+    battery_innen     =  event.battery;
     print("Neue Werte für Innen:", temperatur_innen, "°C,");
   }
 }
