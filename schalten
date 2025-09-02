@@ -8,31 +8,29 @@
 // UM IM FALLE EINER FEHLFUNKTION EINE ÜBERHITZUING UND BRÄNDE ZU VERHINDERN. 
 //
 // Dieses Skript verwandelt eine Shelly Plug und einen Shelly H+T Blu in die STeuerung für einen Joghurtbereiter. 
-// Der Skript schaltet einen angeschlossenen Lüfter und eine Wärmequelle (z.B. eine Glühbirne) über den Schalter des Shellys, auf dem er installiert 
-// ist entsprechend der aktuellen Temperatur im Joghurtbereiter und regelt damit die Temperatur. 
-//   - Der Zyklus startet automatisch, sobald der Shelly Plug mit Strom versorgt wird
-//   - Die Plug empfängt Messwert-Events von einem BLE-Sensor.
-//   - Entsprechend der Temperaturvorgabe wird die Wärmequelle ein- oder ausgeschaltet.
-//   - Nach einer vorher definierten Zykluslänge wird die Wärmequelle nicht mehr eingeschaltet.
+// Der Skript schaltet einen angeschlossenen Lüfter und eine Wärmequelle (z.B. eine Glühbirne) über den Schalter des Shellys auf dem er installiert ist entsprechend der Temperatur im Joghurtbereiter 
+//   - Es empfängt Messwert-Events von einem BLE-Sensor.
+//   - Entsprechend der Temperaturvorgabe wird die Wärmequelle eingeschaltet oder ausgeschaltet.
+//   - nach einer eingestellten Zeit wird die Wärmequelle nicht mehr eingeschaltet.
 //    
-// Die MAC-Adresse für "sensor_innen" muss an den eigenen Sensor angepasst werden.
+// Die nachfolgenden Zeilen müssen angepasst werden, mindestens die MAC-Adressen für "sensor_aussen" und "sensor_innen".
 // Die Schaltkonfiguration kann bei Bedarf angepasst werden.
 //
+
 //========== Sensor-Konfiguration ==========
 var sensor_innen  = "0c:ef:f6:f2:40:d4";
 //========== Schalt-Konfiguration ==========
-var mindesttemperatur  = 41;                 // [°C] ...und Tinnen > mindesttemperatur...
-var schaltzeit         = 60;                 // [s]  Schaltbedingung prüfen alle X Sekunden
+var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
+var schaltzeit         = 6;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var zykluslaenge       = 3600;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
-//===== Ende Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
-//
+//===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
+
 
 var temperatur_innen;
 let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
 
 // Heizungssteuerung
 function schalten() {
-
 
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
   if (typeof temperatur_innen === "undefined")
@@ -41,6 +39,8 @@ function schalten() {
     return;
   }
 
+anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
+
   // Abfrage ob Gesamtzahl der Schaltzyklen erreicht ist.
   if (anzahl_schaltzyklen < 0 )
   {
@@ -48,8 +48,6 @@ function schalten() {
     Shelly.call("Switch.Set", { id: 0, on: false });
     return;
   }
-
-anzahl_schaltzyklen = (anzahl_schaltzyklen - 1); // Zähler für die Zykluszeitbeschraenkung 
 
     if (temperatur_innen < mindesttemperatur) {
     print("Temperierung einschalten");
