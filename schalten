@@ -20,7 +20,7 @@
 //========== Sensor-Konfiguration ==========
 var sensor_innen  = "0c:ef:f6:f2:40:d4";
 //========== Schalt-Konfiguration ==========
-var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
+var mindesttemperatur  = 30;                 // [°C] ...und Tinnen > mindesttemperatur...
 var schaltzeit         = 6;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var zykluslaenge       = 3600;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
@@ -36,6 +36,7 @@ function schalten() {
   if (typeof temperatur_innen === "undefined")
   {
     print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
+    farbring(100,100,0);
     return;
   }
 
@@ -46,16 +47,37 @@ anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
   {
     print("Zyklusende erreicht, Temperierung ausschalten");
     Shelly.call("Switch.Set", { id: 0, on: false });
+    farbring(0,0,50);
     return;
   }
 
     if (temperatur_innen < mindesttemperatur) {
     print("Temperierung einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
+    farbring(100,0,0);
+        
   } else {
     print("Temperierung ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
+    farbring(0,0,100); 
+  
+  
   }
+}
+
+
+// Farbe Farbring setzen für Standalone Betrieb.
+function farbring(red,green,blue) {
+    Shelly.call(
+    "PLUGS_UI.SetConfig",{ id:0, config:{"leds":{"mode":"switch","colors":
+    {"switch:0":
+    {"on":{"rgb":[red,green,blue],"brightness":100},
+    "off":{"rgb":[red,green,blue],"brightness":100}}}}}},
+    function (result, code, msg, ud) {
+    },
+    null
+    );
+
 }
 
 // Event-Verarbeitung
