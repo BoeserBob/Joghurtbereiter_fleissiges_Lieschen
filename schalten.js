@@ -23,12 +23,14 @@ var sensor_innen  = "0c:ef:f6:f2:40:d4";
 var mindesttemperatur  = 30;                 // [°C] ...und Tinnen > mindesttemperatur...
 var schaltzeit         = 6;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var zykluslaenge       = 30;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
-var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot 
+var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
+var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 var battery_innen;
 var temperatur_innen;
 let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
+var lost_connection_innen;
 
 // Heizungssteuerung
 function schalten() {
@@ -41,6 +43,18 @@ function schalten() {
     return;
   }
 
+// Sicherheitsprüfung kommen regelmäßig frische Daten von den Sensoren?
+  lost_connection_innen = lost_connection_innen + schaltzeit
+  print("letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
+  
+  if (lost_connection_innen > lost_connection)
+  {
+    print("Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
+    Shelly.call("Switch.Set", { id: 0, on: false });  
+    farbring(80,80,0,100);
+    return;
+   }
+  
   // Visualisierung Batteriefüllstand
 if (battery_innen < battery_warngrenze )
   {
@@ -92,6 +106,7 @@ function checkBlu(event) {
   if (event.address === sensor_innen) {
     temperatur_innen = event.temperature;
     battery_innen     =  event.battery;
+    lost_connection_aussen = 0  
     print("Neue Werte für Innen:", temperatur_innen, "°C,");
   }
 }
