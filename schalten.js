@@ -106,7 +106,7 @@ function checkBlu(event) {
   if (event.address === sensor_innen) {
     temperatur_innen = event.temperature;
     battery_innen     =  event.battery;
-    lost_connection_aussen = 0  
+    lost_connection_innen = 0  
     print("Neue Werte für Innen:", temperatur_innen, "°C,");
   }
 }
