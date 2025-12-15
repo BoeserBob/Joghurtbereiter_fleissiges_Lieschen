@@ -37,6 +37,8 @@ var steuerung_aktiv = false;
 var prev_button_state = false;
 // Markiert, ob der Zyklus bereits beendet wurde
 var zyklus_beendet = false;
+// Markiert, wenn das Script selbst gerade den Switch automatisch gesetzt hat
+var last_auto_switch = false;
 
 // Setzt alle Laufzeit-Variablen zurück — simuliert "Script neu starten"
 function resetState() {
@@ -71,10 +73,10 @@ function readPhysicalButton(callback) {
           else if (typeof res2.state !== 'undefined') state2 = res2.state;
           else if (typeof res2.ison !== 'undefined') state2 = res2.ison;
         }
-        callback(!!state2);
+        callback(!!state2, 'switch');
       });
     } else {
-      callback(!!state);
+      callback(!!state, 'input');
     }
   });
 }
@@ -105,6 +107,9 @@ function schalten() {
     print("Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });  
     farbring(80,80,0,100);
+    // Verhindern, dass das direkte Abschalten durch das Script
+    // unmittelbar als Benutzer-Tastenaktion interpretiert wird.
+    last_auto_switch = true;
     return;
    }
   
@@ -123,6 +128,7 @@ function schalten() {
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,80,0,100);
     zyklus_beendet = true;
+    last_auto_switch = true;
     return;
   }
 
@@ -168,13 +174,31 @@ function checkBlu(event) {
 Timer.set(schaltzeit * 1000, true, function () {
   // Vor jedem Schaltzyklus den Zustand der physikalischen Taste prüfen (Input)
   readPhysicalButton(function(state) {
-    // Rising-edge: Taste wurde gerade gedrückt -> kompletten Neustart durchführen
-    if (state && !prev_button_state) {
+    // readPhysicalButton liefert jetzt (state, source)
+    var source = null;
+    if (arguments.length >= 2) source = arguments[1];
+    // Rising-edge: Taste wurde gerade gedrückt -> kompletten Neustart durchführen (nur echte Input-Quelle)
+    if (source === 'input' && state && !prev_button_state) {
       resetState();
-    } else {
-      // Normales Verhalten: `steuerung_aktiv` dem aktuellen Tastenstatus anpassen
+    } else if (source === 'input') {
+      // Normales Verhalten: `steuerung_aktiv` dem aktuellen Tastenstatus anpassen (nur bei Input)
       steuerung_aktiv = !!state;
       prev_button_state = !!state;
+    } else {
+      // Quelle ist 'switch' (Fallback). Wenn das Script gerade selbst den Switch gesetzt hat,
+      // ignorieren wir ein unmittelbar folgendes false, um verlorene Verbindungen nicht als
+      // Benutzer-Tastendruck/-ausschalten zu interpretieren.
+      if (last_auto_switch && !state) {
+        // Clear the flag and keep prior steuerung_aktiv
+        last_auto_switch = false;
+      } else if (last_auto_switch && state) {
+        // If switch turned on automatically, clear flag but do not change steuerung_aktiv
+        last_auto_switch = false;
+      } else {
+        // If no recent auto action, accept switch state as control (legacy fallback)
+        steuerung_aktiv = !!state;
+        prev_button_state = !!state;
+      }
     }
 
     print("----- Steuerung alle", schaltzeit, "s -----");
