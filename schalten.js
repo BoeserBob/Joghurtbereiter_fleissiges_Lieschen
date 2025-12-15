@@ -21,10 +21,10 @@
 var sensor_innen  = "0c:ef:f6:f2:40:d4";
 //========== Schalt-Konfiguration ==========
 var mindesttemperatur  = 40;                 // [°C] ...und Tinnen > mindesttemperatur...
-var schaltzeit         = 60;                 // [s]  Schaltbedingung prüfen alle X Sekunden
+var schaltzeit         = 30;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var zykluslaenge       = 36000;                 // [s] nach so vielen Stunden wird die Heizung nicht mehr eingschaltet
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
-var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
+var lost_connection = 240;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 var battery_innen;
