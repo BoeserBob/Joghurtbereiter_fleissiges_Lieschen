@@ -88,8 +88,6 @@ function schalten() {
     print("Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });  
     farbring(80,80,0,100);
-    // Steuerung deaktivieren, wenn Sensorverbindung verloren
-    steuerung_aktiv = false;
     return;
    }
   
