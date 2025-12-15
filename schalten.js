@@ -154,6 +154,7 @@ function farbring(red,green,blue,helligkeit) {
     {"on":{"rgb":[red,green,blue],"brightness":helligkeit},
     "off":{"rgb":[red,green,blue],"brightness":helligkeit}}}}}},
     function (result, code, msg, ud) {
+      print("farbring set -> result:", code, msg, JSON.stringify(result));
     },
     null
     );
