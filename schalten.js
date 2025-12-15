@@ -33,8 +33,25 @@ let anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
 var lost_connection_innen = 0;
 // Steuerung nur aktiv, wenn die Steckdose per Taste eingeschaltet ist
 var steuerung_aktiv = false;
+// Vorheriger Zustand der physischen Taste (für Rising-Edge Erkennung)
+var prev_button_state = false;
 // Markiert, ob der Zyklus bereits beendet wurde
 var zyklus_beendet = false;
+
+// Setzt alle Laufzeit-Variablen zurück — simuliert "Script neu starten"
+function resetState() {
+  battery_innen = null;
+  temperatur_innen = null;
+  anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
+  lost_connection_innen = 0;
+  steuerung_aktiv = true; // nach Tastendruck Steuerung aktivieren
+  zyklus_beendet = false;
+  prev_button_state = true; // wir sind jetzt im gedrückten Zustand
+  print('Script-Neustart durch Tastendruck: Variablen initialisiert.');
+  farbring(0,80,0,100);
+}
+// Markiert, ob der Zyklus bereits beendet wurde
+// zyklus_beendet ist nun oben deklariert
 
 // Liest den Zustand der integrierten Taste (Input) mit Fallback auf Switch-Status
 function readPhysicalButton(callback) {
@@ -151,14 +168,14 @@ function checkBlu(event) {
 Timer.set(schaltzeit * 1000, true, function () {
   // Vor jedem Schaltzyklus den Zustand der physikalischen Taste prüfen (Input)
   readPhysicalButton(function(state) {
-    // Wenn Zyklus beendet ist und Taste gedrückt wird, Zyklus neu starten
-    if (zyklus_beendet && !!state) {
-      anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
-      zyklus_beendet = false;
-      print("Zyklus neu gestartet durch Tastendruck. Verbleibende Zyklen:", anzahl_schaltzyklen);
+    // Rising-edge: Taste wurde gerade gedrückt -> kompletten Neustart durchführen
+    if (state && !prev_button_state) {
+      resetState();
+    } else {
+      // Normales Verhalten: `steuerung_aktiv` dem aktuellen Tastenstatus anpassen
+      steuerung_aktiv = !!state;
+      prev_button_state = !!state;
     }
-
-    steuerung_aktiv = !!state;
 
     print("----- Steuerung alle", schaltzeit, "s -----");
     print("Innen: T =", temperatur_innen, "°C,");
