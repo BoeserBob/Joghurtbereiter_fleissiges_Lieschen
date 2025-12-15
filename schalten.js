@@ -27,25 +27,24 @@ var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unte
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
-var battery_innen;
-var temperatur_innen;
-let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
-var lost_connection_innen;
+var battery_innen = null;
+var temperatur_innen = null;
+let anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
+var lost_connection_innen = 0;
 
 // Heizungssteuerung
 function schalten() {
 
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
-  if (typeof temperatur_innen === "undefined")
-  {
+  if (typeof temperatur_innen !== "number") {
     print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
     farbring(80,80,80,100);
     return;
   }
 
 // Sicherheitsprüfung kommen regelmäßig frische Daten von den Sensoren?
-  lost_connection_innen = lost_connection_innen + schaltzeit
-  print("letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
+  lost_connection_innen = (typeof lost_connection_innen === 'number') ? (lost_connection_innen + schaltzeit) : schaltzeit;
+  print("letzte Verbindung zum Sensor innen vor ", lost_connection_innen, " Sekunden");
   
   if (lost_connection_innen > lost_connection)
   {
@@ -55,12 +54,11 @@ function schalten() {
     return;
    }
   
-  // Visualisierung Batteriefüllstand
-if (battery_innen < battery_warngrenze )
-  {
-    print("Batteriestand niedrig");
-    farbring(100,0,0,100);
-   }
+    // Visualisierung Batteriefüllstand (nur wenn ein gültiger Wert vorliegt)
+    if (typeof battery_innen === 'number' && battery_innen < battery_warngrenze) {
+      print("Batteriestand niedrig");
+      farbring(100,0,0,100);
+    }
 
   anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
 
