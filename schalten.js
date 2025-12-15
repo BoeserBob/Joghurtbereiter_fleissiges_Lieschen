@@ -36,6 +36,32 @@ var steuerung_aktiv = false;
 // Markiert, ob der Zyklus bereits beendet wurde
 var zyklus_beendet = false;
 
+// Liest den Zustand der integrierten Taste (Input) mit Fallback auf Switch-Status
+function readPhysicalButton(callback) {
+  Shelly.call("Input.Get", { id: 0 }, function (res, code, msg) {
+    var state = null;
+    if (res) {
+      if (typeof res.input !== 'undefined') state = res.input;
+      else if (typeof res.state !== 'undefined') state = res.state;
+      else if (typeof res.ison !== 'undefined') state = res.ison;
+    }
+    // Wenn kein Input-Objekt vorhanden ist, auf Switch-Status zurückfallen
+    if (state === null) {
+      Shelly.call("Switch.GetStatus", { id: 0 }, function (res2, code2, msg2) {
+        var state2 = false;
+        if (res2) {
+          if (typeof res2.output !== 'undefined') state2 = res2.output;
+          else if (typeof res2.state !== 'undefined') state2 = res2.state;
+          else if (typeof res2.ison !== 'undefined') state2 = res2.ison;
+        }
+        callback(!!state2);
+      });
+    } else {
+      callback(!!state);
+    }
+  });
+}
+
 // Heizungssteuerung
 function schalten() {
 
@@ -123,16 +149,8 @@ function checkBlu(event) {
 
 // Haupt-Timer für Steuerlogik
 Timer.set(schaltzeit * 1000, true, function () {
-  // Vor jedem Schaltzyklus den Zustand der physischen Taste/Steckdose prüfen.
-  Shelly.call("Switch.GetStatus", { id: 0 }, function (res, code, msg) {
-    // Flexible Prüfung verschiedener Rückgabeformen
-    var state = false;
-    if (res) {
-      if (typeof res.output !== 'undefined') state = res.output;
-      else if (typeof res.state !== 'undefined') state = res.state;
-      else if (typeof res.ison !== 'undefined') state = res.ison;
-      else if (typeof res.enabled !== 'undefined') state = res.enabled;
-    }
+  // Vor jedem Schaltzyklus den Zustand der physikalischen Taste prüfen (Input)
+  readPhysicalButton(function(state) {
     // Wenn Zyklus beendet ist und Taste gedrückt wird, Zyklus neu starten
     if (zyklus_beendet && !!state) {
       anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
