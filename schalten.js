@@ -27,97 +27,40 @@ var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unte
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
-var battery_innen = null;
-var temperatur_innen = null;
-let anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
-var lost_connection_innen = 0;
-// Steuerung nur aktiv, wenn die Steckdose per Taste eingeschaltet ist
-var steuerung_aktiv = false;
-// Vorheriger Zustand der physischen Taste (für Rising-Edge Erkennung)
-var prev_button_state = false;
-// Markiert, ob der Zyklus bereits beendet wurde
-var zyklus_beendet = false;
-// Markiert, wenn das Script selbst gerade den Switch automatisch gesetzt hat
-var last_auto_switch = false;
-
-// Setzt alle Laufzeit-Variablen zurück — simuliert "Script neu starten"
-function resetState() {
-  battery_innen = null;
-  temperatur_innen = null;
-  anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
-  lost_connection_innen = 0;
-  steuerung_aktiv = true; // nach Tastendruck Steuerung aktivieren
-  zyklus_beendet = false;
-  prev_button_state = true; // wir sind jetzt im gedrückten Zustand
-  print('Script-Neustart durch Tastendruck: Variablen initialisiert.');
-  farbring(0,80,0,100);
-}
-// Markiert, ob der Zyklus bereits beendet wurde
-// zyklus_beendet ist nun oben deklariert
-
-// Liest den Zustand der integrierten Taste (Input) mit Fallback auf Switch-Status
-function readPhysicalButton(callback) {
-  Shelly.call("Input.Get", { id: 0 }, function (res, code, msg) {
-    var state = null;
-    if (res) {
-      if (typeof res.input !== 'undefined') state = res.input;
-      else if (typeof res.state !== 'undefined') state = res.state;
-      else if (typeof res.ison !== 'undefined') state = res.ison;
-    }
-    // Wenn kein Input-Objekt vorhanden ist, auf Switch-Status zurückfallen
-    if (state === null) {
-      Shelly.call("Switch.GetStatus", { id: 0 }, function (res2, code2, msg2) {
-        var state2 = false;
-        if (res2) {
-          if (typeof res2.output !== 'undefined') state2 = res2.output;
-          else if (typeof res2.state !== 'undefined') state2 = res2.state;
-          else if (typeof res2.ison !== 'undefined') state2 = res2.ison;
-        }
-        callback(!!state2, 'switch');
-      });
-    } else {
-      callback(!!state, 'input');
-    }
-  });
-}
+var battery_innen;
+var temperatur_innen;
+let anzahl_schaltzyklen =(zykluslaenge / schaltzeit);
+var lost_connection_innen;
 
 // Heizungssteuerung
 function schalten() {
 
-  // Steuerung nur wenn aktiviert (Taste an Steckdose gedrückt)
-  if (!steuerung_aktiv) {
-    print("Steuerung inaktiv (Taste nicht gedrückt). Wartet auf Aktivierung.");
-    farbring(80,80,80,20);
-    return;
-  }
-
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
-  if (typeof temperatur_innen !== "number") {
+  if (typeof temperatur_innen === "undefined")
+  {
     print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
     farbring(80,80,80,100);
     return;
   }
 
 // Sicherheitsprüfung kommen regelmäßig frische Daten von den Sensoren?
-  lost_connection_innen = (typeof lost_connection_innen === 'number') ? (lost_connection_innen + schaltzeit) : schaltzeit;
-  print("letzte Verbindung zum Sensor innen vor ", lost_connection_innen, " Sekunden");
-  
+  lost_connection_innen = lost_connection_innen + schaltzeit
+  print("letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
+
   if (lost_connection_innen > lost_connection)
   {
     print("Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });  
     farbring(80,80,0,100);
-    // Verhindern, dass das direkte Abschalten durch das Script
-    // unmittelbar als Benutzer-Tastenaktion interpretiert wird.
-    last_auto_switch = true;
     return;
    }
-  
-    // Visualisierung Batteriefüllstand (nur wenn ein gültiger Wert vorliegt)
-    if (typeof battery_innen === 'number' && battery_innen < battery_warngrenze) {
-      print("Batteriestand niedrig");
-      farbring(100,0,0,100);
-    }
+
+  // Visualisierung Batteriefüllstand
+if (battery_innen < battery_warngrenze )
+  {
+    print("Batteriestand niedrig");
+    farbring(100,0,0,100);
+   }
 
   anzahl_schaltzyklen = (anzahl_schaltzyklen - 1);
 
@@ -127,8 +70,6 @@ function schalten() {
     print("Zyklusende erreicht, Temperierung ausschalten");
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,80,0,100);
-    zyklus_beendet = true;
-    last_auto_switch = true;
     return;
   }
 
@@ -136,12 +77,12 @@ function schalten() {
     print("Temperierung einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
     farbring(80,10,0,100);
-        
+
   } else {
     print("Temperierung ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,0,80,100); 
-   
+
   }
 }
 
@@ -154,7 +95,6 @@ function farbring(red,green,blue,helligkeit) {
     {"on":{"rgb":[red,green,blue],"brightness":helligkeit},
     "off":{"rgb":[red,green,blue],"brightness":helligkeit}}}}}},
     function (result, code, msg, ud) {
-      print("farbring set -> result:", code, msg, JSON.stringify(result));
     },
     null
     );
@@ -173,41 +113,10 @@ function checkBlu(event) {
 
 // Haupt-Timer für Steuerlogik
 Timer.set(schaltzeit * 1000, true, function () {
-  // Vor jedem Schaltzyklus den Zustand der physikalischen Taste prüfen (Input)
-  readPhysicalButton(function(state) {
-    // readPhysicalButton liefert jetzt (state, source)
-    var source = null;
-    if (arguments.length >= 2) source = arguments[1];
-    // Rising-edge: Taste wurde gerade gedrückt -> kompletten Neustart durchführen (nur echte Input-Quelle)
-    if (source === 'input' && state && !prev_button_state) {
-      resetState();
-    } else if (source === 'input') {
-      // Normales Verhalten: `steuerung_aktiv` dem aktuellen Tastenstatus anpassen (nur bei Input)
-      steuerung_aktiv = !!state;
-      prev_button_state = !!state;
-    } else {
-      // Quelle ist 'switch' (Fallback). Wenn das Script gerade selbst den Switch gesetzt hat,
-      // ignorieren wir ein unmittelbar folgendes false, um verlorene Verbindungen nicht als
-      // Benutzer-Tastendruck/-ausschalten zu interpretieren.
-      if (last_auto_switch && !state) {
-        // Clear the flag and keep prior steuerung_aktiv
-        last_auto_switch = false;
-      } else if (last_auto_switch && state) {
-        // If switch turned on automatically, clear flag but do not change steuerung_aktiv
-        last_auto_switch = false;
-      } else {
-        // If no recent auto action, accept switch state as control (legacy fallback)
-        steuerung_aktiv = !!state;
-        prev_button_state = !!state;
-      }
-    }
-
-    print("----- Steuerung alle", schaltzeit, "s -----");
-    print("Innen: T =", temperatur_innen, "°C,");
-    print("verbleibende Schaltzyklen: ", anzahl_schaltzyklen );
-    print("Steuerung aktiv:", steuerung_aktiv);
-    schalten();
-  });
+  print("----- Steuerung alle", schaltzeit, "s -----");
+  print("Innen: T =", temperatur_innen, "°C,");
+  print("verbleibende Schaltzyklen: ", anzahl_schaltzyklen );
+  schalten();
 });
 
 
