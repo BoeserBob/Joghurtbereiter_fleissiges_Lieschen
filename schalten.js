@@ -31,9 +31,20 @@ var battery_innen = null;
 var temperatur_innen = null;
 let anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
 var lost_connection_innen = 0;
+// Steuerung nur aktiv, wenn die Steckdose per Taste eingeschaltet ist
+var steuerung_aktiv = false;
+// Markiert, ob der Zyklus bereits beendet wurde
+var zyklus_beendet = false;
 
 // Heizungssteuerung
 function schalten() {
+
+  // Steuerung nur wenn aktiviert (Taste an Steckdose gedrückt)
+  if (!steuerung_aktiv) {
+    print("Steuerung inaktiv (Taste nicht gedrückt). Wartet auf Aktivierung.");
+    farbring(80,80,80,20);
+    return;
+  }
 
   // Sicherheitsprüfung: Sind alle benötigten Werte vorhanden?
   if (typeof temperatur_innen !== "number") {
@@ -68,6 +79,7 @@ function schalten() {
     print("Zyklusende erreicht, Temperierung ausschalten");
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,80,0,100);
+    zyklus_beendet = true;
     return;
   }
 
@@ -111,10 +123,31 @@ function checkBlu(event) {
 
 // Haupt-Timer für Steuerlogik
 Timer.set(schaltzeit * 1000, true, function () {
-  print("----- Steuerung alle", schaltzeit, "s -----");
-  print("Innen: T =", temperatur_innen, "°C,");
-  print("verbleibende Schaltzyklen: ", anzahl_schaltzyklen );
-  schalten();
+  // Vor jedem Schaltzyklus den Zustand der physischen Taste/Steckdose prüfen.
+  Shelly.call("Switch.GetStatus", { id: 0 }, function (res, code, msg) {
+    // Flexible Prüfung verschiedener Rückgabeformen
+    var state = false;
+    if (res) {
+      if (typeof res.output !== 'undefined') state = res.output;
+      else if (typeof res.state !== 'undefined') state = res.state;
+      else if (typeof res.ison !== 'undefined') state = res.ison;
+      else if (typeof res.enabled !== 'undefined') state = res.enabled;
+    }
+    // Wenn Zyklus beendet ist und Taste gedrückt wird, Zyklus neu starten
+    if (zyklus_beendet && !!state) {
+      anzahl_schaltzyklen = (zykluslaenge / schaltzeit);
+      zyklus_beendet = false;
+      print("Zyklus neu gestartet durch Tastendruck. Verbleibende Zyklen:", anzahl_schaltzyklen);
+    }
+
+    steuerung_aktiv = !!state;
+
+    print("----- Steuerung alle", schaltzeit, "s -----");
+    print("Innen: T =", temperatur_innen, "°C,");
+    print("verbleibende Schaltzyklen: ", anzahl_schaltzyklen );
+    print("Steuerung aktiv:", steuerung_aktiv);
+    schalten();
+  });
 });
 
 
